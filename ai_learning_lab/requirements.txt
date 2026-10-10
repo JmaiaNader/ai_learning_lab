@@ -1,0 +1,10 @@
+streamlit>=1.38
+fastapi>=0.112
+uvicorn[standard]>=0.30
+requests>=2.32
+python-dotenv>=1.0
+pypdf>=5.0
+chromadb>=0.5
+mysql-connector-python>=9.0
+openai>=1.40
+python-multipart>=0.0.9
