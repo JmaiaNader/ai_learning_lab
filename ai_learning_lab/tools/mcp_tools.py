@@ -1,7 +1,26 @@
-def mcp_status():
-    """Return the current MCP learning adapter status without contacting a server."""
-    return {"configured": False, "message": "MCP client/server wiring is a learning exercise. Configure an approved server, transport, authentication, and compatible SDK before enabling remote tools."}
+"""Status helpers for the local MCP analytics integration."""
+from pathlib import Path
 
-# Exercise: select an MCP server, use its documented transport, discover tools,
-# validate tool names/arguments, and expose only an allowlisted subset.
-# Keep credentials outside prompts and require approval for consequential actions.
+
+def mcp_status():
+    """Describe the configured local MCP boundary used by Tool Calling 4.
+
+    This reports configuration only. A successful tool discovery/invocation in the
+    Tool Calling 4 execution trace is the actual runtime health check.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    server_path = project_root / "tools" / "mcp_server.py"
+    configured = server_path.is_file()
+    return {
+        "configured": configured,
+        "connected": None,
+        "transport": "stdio",
+        "server": "tools.mcp_server",
+        "tool": "query_contact_center_data",
+        "message": (
+            "The local MCP server is configured and is started on demand by the Tool Calling 4 LangGraph workflow. "
+            "Use the execution trace to confirm live discovery and tool invocation."
+            if configured else
+            "The MCP server file is missing. Install the Tool Calling 4 patch and restart the backend."
+        ),
+    }

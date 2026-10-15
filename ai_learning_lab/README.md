@@ -1,36 +1,14 @@
-# AI Learning Lab
+# Generic contact-center query patch (Tool Calling 2)
 
-Four Streamlit learning tracks:
-1. RAG application (PDFs)
-2. Tool Calling 1 — RAG + MySQL
-3. Tool Calling 2 — LangGraph + Tools
-4. Tool Calling 4 — LangGraph + Tools + MCP
+Replace the three files in the matching folders:
+- tools/mysql_tools.py
+- tools/registry.py
+- backend/services/langgraph_service.py
 
-Each track includes training lessons, code locations/definitions, and an AI tutor chat. The default provider is Ollama; OpenAI is also supported through a separate provider adapter.
+This introduces one allowlisted, parameterized query tool for contact-center data. Existing specialized functions remain as compatibility wrappers for Tool Calling 1 and older code, but LangGraph routes KPI questions through `query_contact_center_data`.
 
-## Run in VS Code
-1. Extract this ZIP and open the folder.
-2. Create and activate a virtual environment:
-   - Windows: `py -m venv .venv` then `.venv\Scripts\Activate.ps1`
-   - macOS/Linux: `python3 -m venv .venv` then `source .venv/bin/activate`
-3. Install: `pip install -r requirements.txt`
-4. Copy `.env.example` to `.env`.
-5. Install/start Ollama, then run `ollama pull llama3.2`.
-6. Terminal 1: `uvicorn backend.main:app --reload --port 8000`
-7. Terminal 2: `streamlit run frontend/streamlit_app.py`
+Supported dimensions: work_date, interval_start, channel, market, week_start, month_start.
+Supported metrics: offered, answered, abandoned, SLA %, weighted AHT, weighted ASA.
+Supported date filters: explicit date list, date range, today, yesterday, same weekday last week, last/this week, and last 7/14/30 complete days. Values and filters are parameterized; SQL identifiers come only from allowlists.
 
-UI: http://localhost:8501 | API health: http://localhost:8000/health
-
-## PDFs
-Upload a PDF in the sidebar or place PDFs in `data/pdfs/`, then click Index PDFs. Text is chunked and stored in local ChromaDB at `data/chroma/`.
-
-## MySQL schema from your screenshots
-Database: `first_application_ai`
-- `agentdetails`: agentid, name, site, supervisorname, officename, managername, active_status, doj, resignation_date, seperation_type, team, primary_language, nationality
-- `aht_agent`: id, date, agentID, aht, handled, hold, acw, channel, site
-- `marketleveldataset`: id, offered, handled, aht, sla, language, market, date, interval, channel
-
-Set MYSQL_* variables in `.env`. Sample tools use read-only aggregate queries and an allowlist. Review before production use.
-
-## Architecture
-`frontend/` Streamlit UI; `backend/` FastAPI, LLM, RAG, services; `config/` app/database/provider settings; `tools/` isolated tool implementations and registry. The LangGraph and MCP tracks are guided learning scaffolds, not a production-ready connected MCP deployment. Add authentication, authorization, secrets management and stricter database controls before exposing this app.
+After copying, restart FastAPI and Streamlit. Run your existing tests and then test in Tool Calling 2.
